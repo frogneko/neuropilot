@@ -6,7 +6,7 @@
 	"displayName": "NeuroPilot",
 	"description": "Lets Neuro-sama provide inline completions in VS Code",
 	"icon": "icon.png",
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"publisher": "Pasu4",
 	"repository": "https://github.com/Pasu4/neuropilot",
 	"license": "MIT",
