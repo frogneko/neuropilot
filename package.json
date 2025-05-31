@@ -3,7 +3,7 @@
 	"displayName": "NeuroPilot",
 	"description": "Allows Neuro-sama to either act as a companion/copilot or control Visual Studio Code by herself.",
 	"icon": "icon.png",
-	"version": "1.5.0",
+	"version": "2.0.0",
 	"publisher": "Pasu4",
 	"repository": "https://github.com/Pasu4/neuropilot",
 	"license": "MIT",
