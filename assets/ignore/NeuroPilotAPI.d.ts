@@ -1,12 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
 * This is a draft implementation of the NeuroPilot API.
 * This might not represent the final form of the API.
 */
 
 // Instances of Position should be imaginatively replaced with an actual object interface to describe the Neuro cursor position.
-import { Event, Position } from 'vscode';
+import { Event, Position, WorkspaceConfiguration } from 'vscode';
 import { Action, NeuroClient } from 'neuro-game-sdk';
-import { ActionData, ActionValidationResult, ActionWithHandler as RCEAction } from '../../src/neuro_client_helper';
+import { ActionData, ActionValidationResult, RCEAction } from '../../src/neuro_client_helper';
 import { Permission, PermissionLevel } from '../../src/config';
 import { PromptGenerator } from '../../src/rce';
 export type { Permission } from '../../src/config';
@@ -41,6 +42,7 @@ export interface NeuroPilotExtension {
     getAPI(version: CurrentAPIVersions | DeprecatedAPIVersions): NeuroPilotAPI;
 }
 
+// @ts-expect-error CursorPropsHere is a placefolder
 type CursorReturns = CursorPropsHere | null | undefined;
 
 export interface Validators {
@@ -57,7 +59,8 @@ export interface Validators {
     * Function(s) to validate the action data after an action result packet is sent.
     * These should be used for long running asynchronous validators (e.g. pinging an external endpoint).
     * 
-    * These will be checked separately to {@link sync} and all validators will run concurrently.
+    * These will be checked separately to {@link sync}.
+    * All async validators will run concurrently.
     * If one fails, the action will be rejected regardless of the results of other asynchronous validators.
     * During this process, Neuro cannot execute another action, whether the permission level is Copilot or Autopilot.
     */
@@ -83,6 +86,20 @@ export interface ActionWithHandler extends Action {
     promptGenerator: PromptGenerator;
     /** Default permission for actions like chat, cancel_request, etc */
     defaultPermission?: PermissionLevel;
+}
+
+export interface emergencyShutdown {
+    /** Permission contributions. Requires that 'Off' is at least a valid option for each *.permission */
+    registerPermission: WorkspaceConfiguration;
+    /** Secondary event that fires when the shutdown command is ran. Useful for other things requiring shutdown (pulling an example from neuropilot itself, tasks and terminals would use this) */
+    shutdownEvent: Event<void>;
+    /** Use this if a shutdown went wrong. Pops up an alternate display message. */
+    reportShutdownFailure: string;
+}
+
+interface ChatPlugins extends RCEAction { // Chat plugins MUST be UI-side to hook into Neuro immediately (unless it's stable enough to also somehow allow chat plugins at workspace)
+    chat: boolean; // Add this action as an action option to the force.
+    chatOnly: boolean; // If true, this action will only be registered while requesting a response via chat view.
 }
 
 interface RCEActionWithExtensionInfo extends RCEAction {
@@ -452,7 +469,7 @@ export class NeuroPilotHelper {
     * This will automatically filter out invalid paths, and if folders are specified, also automatically drops Neuro-unsafe paths.
     * @todo Accept glob-specified/regex-specified paths?
     * 
-    * If you want to see the cursor state across the entire workspace, use
+    * If you want to see the cursor state across the entire workspace, use {@link getWorkspaceCursors}.
     * 
     * @param paths Any amount of paths to a specific file or folder.
     * @returns An array of {@link MultiCursorType objects} that specify where the cursor is in each requested file/folder.
