@@ -2,39 +2,69 @@ import * as vscode from 'vscode';
 
 import { NEURO } from './constants';
 import { combineGlobLines, filterFileContents, getFence, getVirtualCursor, getWorkspacePath, isPathNeuroSafe, logOutput, normalizePath } from './utils';
-import { ActionData, contextNoAccess, ActionWithHandler, actionValidationFailure, actionValidationAccept, ActionValidationResult, stripToActions } from './neuro_client_helper';
+import { ActionData, contextNoAccess, RCEAction, actionValidationFailure, actionValidationAccept, ActionValidationResult, stripToActions } from './neuro_client_helper';
 import { CONFIG, PERMISSIONS, getPermissionLevel } from './config';
 
-function validatePath(path: string, directoryType: string): ActionValidationResult {
-    if (!isPathNeuroSafe(getWorkspacePath() + '/' + normalizePath(path).replace(/^\/|\/$/g, ''))) {
+/**
+ * The path validator.
+ * @param path The relative path to the file/folder.
+ * @param checkExist Whether to check if the directory exists or doesn't exist. `true` returns a failure if it does exist, `false` returns a failure if it doesn't.
+ * @param directoryType What type of directory it is. 
+ * @returns A validation message. {@link actionValidationFailure} if any validation steps fail, {@link actionValidationAccept} otherwise.
+ */
+async function validatePath(path: string, checkExist: boolean, directoryType: string): Promise<ActionValidationResult> {
+    if (path === '') {
+        return actionValidationFailure('No file path specified.', true);
+    };
+    const absolutePath = getWorkspacePath() + '/' + normalizePath(path).replace(/^\/|\/$/g, '');
+    if (!isPathNeuroSafe(absolutePath)) {
         return actionValidationFailure(`You are not allowed to access this ${directoryType}.`);
     }
+
+    const existence = await getPathExistence(absolutePath);
+    if (checkExist === true && existence === true) {
+        return actionValidationFailure(`${directoryType} "${path}" already exists.`);
+    } else if (checkExist === false && existence === false) {
+        return actionValidationFailure(`${directoryType} "${path}" doesn't exist.`);
+    }
+
     return actionValidationAccept();
 };
 
-function neuroSafeValidation(actionData: ActionData): ActionValidationResult {
+async function getPathExistence(absolutePath: string): Promise<boolean> {
+    const pathAsUri = vscode.Uri.file(absolutePath);
+    try {
+        await vscode.workspace.fs.stat(pathAsUri);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+async function neuroSafeValidation(actionData: ActionData): Promise<ActionValidationResult> {
     let result: ActionValidationResult = actionValidationAccept();
+    const checkExists = actionData.name === 'open_file' ? false : true;
     if (actionData.params?.filePath) {
-        result = validatePath(actionData.params.filePath, 'file');
+        result = await validatePath(actionData.params.filePath, checkExists, 'file');
     }
     if (!result.success) return result;
     if (actionData.params?.folderPath) {
-        result = validatePath(actionData.params.folderPath, 'folder');
+        result = await validatePath(actionData.params.folderPath, checkExists, 'folder');
     }
     return result;
 }
 
-function neuroSafeDeleteValidation(actionData: ActionData): ActionValidationResult {
-    const check = validatePath(actionData.params.path, actionData.params.recursive ? 'folder' : 'file');
-    if (!check.success) return check;
+async function neuroSafeDeleteValidation(actionData: ActionData): Promise<ActionValidationResult> {
+    const check = validatePath(actionData.params.path, false, actionData.params.recursive ? 'folder' : 'file');
+    if (!(await check).success) return check;
     return actionValidationAccept();
 }
 
-function neuroSafeRenameValidation(actionData: ActionData): ActionValidationResult {
-    let check = validatePath(actionData.params.oldPath, 'directory');
-    if (!check.success) return check;
-    check = validatePath(actionData.params.newPath, 'directory');
-    if (!check.success) return check;
+async function neuroSafeRenameValidation(actionData: ActionData): Promise<ActionValidationResult> {
+    let check = validatePath(actionData.params.oldPath, false, 'directory');
+    if (!(await check).success) return check;
+    check = validatePath(actionData.params.newPath, true, 'directory');
+    if (!(await check).success) return check;
 
     return actionValidationAccept();
 }
@@ -47,9 +77,10 @@ export const fileActions = {
         handler: handleGetFiles,
         validator: [() => {
             const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-            if(workspaceFolder === undefined)
+            if (workspaceFolder === undefined)
                 return actionValidationFailure('No open workspace to get files from.');
-            return actionValidationAccept(); },
+            return actionValidationAccept();
+        },
         ],
         promptGenerator: 'get a list of files in the workspace.',
     },
@@ -130,30 +161,30 @@ export const fileActions = {
         validator: [neuroSafeDeleteValidation],
         promptGenerator: (actionData: ActionData) => `delete "${actionData.params?.pathToDelete}".`,
     },
-} satisfies Record<string, ActionWithHandler>;
+} satisfies Record<string, RCEAction>;
 
 export function registerFileActions() {
-    if(getPermissionLevel(PERMISSIONS.openFiles)) {
+    if (getPermissionLevel(PERMISSIONS.openFiles)) {
         NEURO.client?.registerActions(stripToActions([
             fileActions.get_files,
             fileActions.open_file,
         ]));
     }
 
-    if(getPermissionLevel(PERMISSIONS.create)) {
+    if (getPermissionLevel(PERMISSIONS.create)) {
         NEURO.client?.registerActions(stripToActions([
             fileActions.create_file,
             fileActions.create_folder,
         ]));
     }
 
-    if(getPermissionLevel(PERMISSIONS.rename)) {
+    if (getPermissionLevel(PERMISSIONS.rename)) {
         NEURO.client?.registerActions(stripToActions([
             fileActions.rename_file_or_folder,
         ]));
     }
 
-    if(getPermissionLevel(PERMISSIONS.delete)) {
+    if (getPermissionLevel(PERMISSIONS.delete)) {
         NEURO.client?.registerActions(stripToActions([
             fileActions.delete_file_or_folder,
         ]));
@@ -164,7 +195,7 @@ export function handleCreateFile(actionData: ActionData): string | undefined {
     const relativePathParam = actionData.params.filePath;
     const relativePath = normalizePath(relativePathParam).replace(/^\//, '');
     const absolutePath = getWorkspacePath() + '/' + relativePath;
-    if(!isPathNeuroSafe(absolutePath))
+    if (!isPathNeuroSafe(absolutePath))
         return contextNoAccess(absolutePath);
 
     checkAndOpenFileAsync(absolutePath, relativePath);
@@ -196,7 +227,7 @@ export function handleCreateFile(actionData: ActionData): string | undefined {
         NEURO.client?.sendContext(`Created file ${relativePath}`);
 
         // Open the file if Neuro has permission to do so
-        if(!getPermissionLevel(PERMISSIONS.openFiles))
+        if (!getPermissionLevel(PERMISSIONS.openFiles))
             return;
 
         try {
@@ -310,7 +341,7 @@ export function handleDeleteFileOrFolder(actionData: ActionData): string | undef
         }
 
         // Check for correct recursive parameter
-        if(stat.type === vscode.FileType.Directory && !recursive) {
+        if (stat.type === vscode.FileType.Directory && !recursive) {
             NEURO.client?.sendContext(`Could not delete: ${relativePath} is a directory cannot be deleted without the "recursive" parameter`);
             return;
         }
@@ -341,10 +372,10 @@ export function handleGetFiles(_actionData: ActionData): string | undefined {
                     const aParts = a.split('/');
                     const bParts = b.split('/');
 
-                    for(let i = 0; i < Math.min(aParts.length, bParts.length); i++) {
-                        if(aParts[i] !== bParts[i]) {
-                            if(aParts.length === i + 1) return -1;
-                            if(bParts.length === i + 1) return 1;
+                    for (let i = 0; i < Math.min(aParts.length, bParts.length); i++) {
+                        if (aParts[i] !== bParts[i]) {
+                            if (aParts.length === i + 1) return -1;
+                            if (bParts.length === i + 1) return 1;
                             return aParts[i].localeCompare(bParts[i]);
                         }
                     }
@@ -362,7 +393,7 @@ export function handleOpenFile(actionData: ActionData): string | undefined {
     const relativePath = actionData.params.filePath;
 
     const uri = vscode.Uri.file(getWorkspacePath() + '/' + normalizePath(relativePath));
-    if(!isPathNeuroSafe(uri.fsPath))
+    if (!isPathNeuroSafe(uri.fsPath))
         return contextNoAccess(uri.fsPath);
 
     openFileAsync();

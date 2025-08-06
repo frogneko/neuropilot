@@ -34,17 +34,8 @@ jobs:
       with:
         node-version: 'latest'
 
-    - name: Bump docs version
-      if: ${{ inputs.update_docs }}
-      run: |
-        cd docs
-        npm version --no-git-tag-version ${{ inputs.version }}
-        git add package.json package-lock.json
-
-    - name: Build
-      run: |
-        npm install
-        npm run compile
+    - name: Install deps
+      run: npm install
       
     - name: Configure Git
       run: |
@@ -52,11 +43,15 @@ jobs:
         git config --global user.email "actions@github.com"
     
     - name: Publish extension
-      run: npx @vscode/vsce publish ${{inputs.version}} -p ${{secrets.MARKETPLACE_TOKEN}} --allow-star-activation --no-git-tag-version
+      env:
+        NODE_ENV: 1
+      run: npx @vscode/vsce publish ${{inputs.version}} -p ${{secrets.MARKETPLACE_TOKEN}} --allow-star-activation
 
     - name: Commit and push version change
       run: |
-        new_version=$(npm show ./ version)
-        git commit -am "$new_version"
-        git tag -a "v$new_version" -m "$new_version"
         git push --follow-tags https://VSC-NeuroPilot:${{secrets.GITHUB_TOKEN}}:@github.com/VSC-NeuroPilot/neuropilot
+    
+    - name: Rebuild docs site
+      if: ${{ inputs.update_docs }}
+      run: gh workflow run bump.yml -f check=${{ inputs.update_docs }} --repo VSC-NeuroPilot/docs
+
