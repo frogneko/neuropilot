@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 
-import { getFence, logOutput, simpleFileName } from './utils';
-import { NEURO } from './constants';
-import { PERMISSIONS, getPermissionLevel } from './config';
+import { getFence, logOutput, simpleFileName } from '~/utils';
+import { NEURO } from '~/constants';
+import { PERMISSIONS, getPermissionLevel } from '~/config';
 
 export function sendCurrentFile() {
     const editor = vscode.window.activeTextEditor;

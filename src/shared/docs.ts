@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import { logOutput } from '../utils';
-import { CONFIG } from '../config';
+import { logOutput } from '~/utils';
+import { CONFIG } from '~/config';
 
 // Shared docs management
 export const docsOptions: Record<string, string> = {

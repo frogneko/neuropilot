@@ -6,10 +6,10 @@
 
 import * as vscode from 'vscode';
 
-import { NEURO } from './constants';
-import { logOutput, formatActionID, getFence, checkWorkspaceTrust } from './utils';
-import { ActionData, RCEAction, actionValidationAccept, actionValidationFailure, stripToActions } from './neuro_client_helper';
-import { CONFIG, PERMISSIONS, getPermissionLevel } from './config';
+import { NEURO } from '~/constants';
+import { logOutput, formatActionID, getFence, checkWorkspaceTrust } from '~/utils';
+import { ActionData, RCEAction, actionValidationAccept, actionValidationFailure, stripToActions } from '~/neuro_client_helper';
+import { CONFIG, PERMISSIONS, getPermissionLevel } from '~/config';
 
 export const taskHandlers = {
     // handleRunTask is used separately and not on this list

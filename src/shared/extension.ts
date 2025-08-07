@@ -1,15 +1,15 @@
 import * as vscode from 'vscode';
-import { NEURO, EXTENSIONS } from '../constants';
-import { logOutput, createClient, onClientConnected, setVirtualCursor } from '../utils';
-import { completionsProvider, registerCompletionResultHandler } from '../completions';
-import { giveCookie, registerRequestCookieAction, registerRequestCookieHandler, sendCurrentFile } from '../context';
-import { registerChatResponseHandler } from '../chat';
-import { CONFIG } from '../config';
-import { explainWithNeuro, fixWithNeuro, NeuroCodeActionsProvider, sendDiagnosticsDiff } from '../lint_problems';
-import { editorChangeHandler, fileSaveListener, moveNeuroCursorHere, toggleSaveAction, workspaceEditHandler } from '../editing';
-import { emergencyDenyRequests, acceptRceRequest, denyRceRequest, revealRceNotification } from '../rce';
-import type { GitExtension } from '../types/git';
-import { getGitExtension } from '../git';
+import { NEURO, EXTENSIONS } from '~/constants';
+import { logOutput, createClient, onClientConnected, setVirtualCursor } from '~/utils';
+import { completionsProvider, registerCompletionResultHandler } from '~/completions';
+import { giveCookie, registerRequestCookieAction, registerRequestCookieHandler, sendCurrentFile } from '~/context';
+import { registerChatResponseHandler } from '~/chat';
+import { CONFIG } from '~/config';
+import { explainWithNeuro, fixWithNeuro, NeuroCodeActionsProvider, sendDiagnosticsDiff } from '~/lint_problems';
+import { editorChangeHandler, fileSaveListener, moveNeuroCursorHere, toggleSaveAction, workspaceEditHandler } from '~/editing';
+import { emergencyDenyRequests, acceptRceRequest, denyRceRequest, revealRceNotification } from '~/rce';
+import type { GitExtension } from '@typing/git';
+import { getGitExtension } from '~/git';
 import { registerDocsCommands, registerDocsLink } from './docs';
 
 // Shared commands

@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
-import { reloadTasks, taskEndedHandler } from '../tasks';
-import { emergencyTerminalShutdown } from '../pseudoterminal';
-import { createClient, isPathNeuroSafe, setVirtualCursor } from '../utils';
-import { NEURO } from '../constants';
+import { reloadTasks, taskEndedHandler } from '~/tasks';
+import { emergencyTerminalShutdown } from '~/pseudoterminal';
+import { createClient, isPathNeuroSafe, setVirtualCursor } from '~/utils';
+import { NEURO } from '~/constants';
 import {
     initializeCommonState,
     setupCommonProviders,
@@ -14,9 +14,9 @@ import {
     getDecorationRenderOptions,
     obtainExtensionState,
     reloadPermissions,
-} from '../shared/extension';
-import { registerDocsLink } from '../shared/docs';
-import { registerChatParticipant } from '../chat';
+} from '@shared/extension';
+import { registerDocsLink } from '@shared/docs';
+import { registerChatParticipant } from '~/chat';
 import { registerUnsupervisedActions, registerUnsupervisedHandlers } from './unsupervised';
 
 export { registerDocsLink };

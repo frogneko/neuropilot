@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
 
-import { NEURO } from './constants';
-import { escapeRegExp, getFence, getPositionContext, getVirtualCursor, isPathNeuroSafe, logOutput, NeuroPositionContext, setVirtualCursor, substituteMatch } from './utils';
-import { ActionData, actionValidationAccept, actionValidationFailure, ActionValidationResult, RCEAction, contextFailure, stripToActions } from './neuro_client_helper';
-import { PERMISSIONS, getPermissionLevel, CONFIG } from './config';
+import { NEURO } from '~/constants';
+import { escapeRegExp, getFence, getPositionContext, getVirtualCursor, isPathNeuroSafe, logOutput, NeuroPositionContext, setVirtualCursor, substituteMatch } from '~/utils';
+import { ActionData, actionValidationAccept, actionValidationFailure, ActionValidationResult, RCEAction, contextFailure, stripToActions } from '~/neuro_client_helper';
+import { PERMISSIONS, getPermissionLevel, CONFIG } from '~/config';
 
 const CONTEXT_NO_ACCESS = 'You do not have permission to access this file.';
 const CONTEXT_NO_ACTIVE_DOCUMENT = 'No active document to edit.';

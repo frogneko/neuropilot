@@ -1,4 +1,5 @@
 /* eslint-disable no-undef */
+// @ts-check
 import { context } from 'esbuild';
 import { polyfillNode } from 'esbuild-plugin-polyfill-node';
 
@@ -15,7 +16,7 @@ export async function web(prodFlag, watchFlag) {
         external: ['vscode'],
         logLevel: 'warning',
         plugins: [
-            polyfillNode({ // trying to make the build as small as possible
+            polyfillNode({ polyfills: { // trying to make the build as small as possible
                 child_process: false,
                 module: false,
                 os: false,
@@ -26,7 +27,7 @@ export async function web(prodFlag, watchFlag) {
                 v8: false,
                 vm: false,
                 zlib: false,
-            }),
+            }}),
             /* add to the end of plugins array */
             esbuildProblemMatcherPlugin,
         ],

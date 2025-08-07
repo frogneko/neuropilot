@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
-import { NEURO } from './constants';
-import { normalizePath, getWorkspacePath, logOutput, isPathNeuroSafe } from './utils';
-import { PERMISSIONS, getPermissionLevel, CONFIG } from './config';
-import { ActionData, actionValidationAccept, actionValidationFailure, ActionValidationResult, RCEAction, contextFailure, stripToActions } from './neuro_client_helper';
+import { NEURO } from '~/constants';
+import { normalizePath, getWorkspacePath, logOutput, isPathNeuroSafe } from '~/utils';
+import { PERMISSIONS, getPermissionLevel, CONFIG } from '~/config';
+import { ActionData, actionValidationAccept, actionValidationFailure, ActionValidationResult, RCEAction, contextFailure, stripToActions } from '~/neuro_client_helper';
 import assert from 'node:assert';
 
 /**

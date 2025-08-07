@@ -3,9 +3,9 @@
  */
 
 import { Action } from 'neuro-game-sdk';
-import { Permission, PermissionLevel } from './config';
-import { logOutput } from './utils';
-import { PromptGenerator } from './rce';
+import { Permission, PermissionLevel } from '~/config';
+import { logOutput } from '~/utils';
+import { PromptGenerator } from '~/rce';
 
 /** Data used by an action handler. */
 export interface ActionData {

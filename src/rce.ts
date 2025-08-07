@@ -4,11 +4,11 @@
  */
 
 import * as vscode from 'vscode';
-import { ActionData, RCEAction } from './neuro_client_helper';
-import { NEURO } from './constants';
-import { checkWorkspaceTrust, logOutput } from './utils';
-import { CONFIG, getPermissionLevel, PermissionLevel, PERMISSIONS } from './config';
-import { handleRunTask } from './tasks';
+import { ActionData, RCEAction } from '~/neuro_client_helper';
+import { NEURO } from '~/constants';
+import { checkWorkspaceTrust, logOutput } from '~/utils';
+import { CONFIG, getPermissionLevel, PermissionLevel, PERMISSIONS } from '~/config';
+import { handleRunTask } from '~/tasks';
 import { validate } from 'jsonschema';
 
 /**

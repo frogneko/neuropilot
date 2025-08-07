@@ -1,4 +1,5 @@
 /* eslint-disable no-undef */
+// @ts-check
 import { context } from 'esbuild';
 
 export async function desktop(prodFlag, watchFlag) {

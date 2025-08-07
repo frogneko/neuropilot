@@ -1,11 +1,11 @@
 import * as vscode from 'vscode';
-import { EXTENSIONS, NEURO } from './constants';
-import type { Change, CommitOptions, Commit, Repository, API } from './types/git.d';
-import { ForcePushMode } from './types/git.d';
-import { StatusStrings, RefTypeStrings } from './types/git_status';
-import { logOutput, simpleFileName, isPathNeuroSafe, normalizePath, getWorkspacePath } from './utils';
-import { ActionData, ActionValidationResult, actionValidationAccept, actionValidationFailure, RCEAction, contextFailure, stripToActions } from './neuro_client_helper';
-import { PERMISSIONS, getPermissionLevel } from './config';
+import { EXTENSIONS, NEURO } from '~/constants';
+import type { Change, CommitOptions, Commit, Repository, API } from '@typing/git.d';
+import { ForcePushMode } from '@typing/git.d';
+import { StatusStrings, RefTypeStrings } from '@typing/git_status';
+import { logOutput, simpleFileName, isPathNeuroSafe, normalizePath, getWorkspacePath } from '~/utils';
+import { ActionData, ActionValidationResult, actionValidationAccept, actionValidationFailure, RCEAction, contextFailure, stripToActions } from '~/neuro_client_helper';
+import { PERMISSIONS, getPermissionLevel } from '~/config';
 import assert from 'node:assert';
 
 /* All actions located in here requires neuropilot.permission.gitOperations to be enabled. */

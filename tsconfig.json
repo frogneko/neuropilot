@@ -6,6 +6,11 @@
 		"outDir": "out",
 		"sourceMap": true,
 		"strict": true,
+		"paths": {
+			"~/*": ["./src/*"],
+			"@shared/*": ["./src/shared/*"],
+			"@typing/*": ["./src/types/*"]
+		}
 	},
 	"exclude": ["node_modules", ".vscode-test", "playground", "docs", "assets", "project-files"]
 }

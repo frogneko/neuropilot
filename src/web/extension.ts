@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import { createClient, isPathNeuroSafe, setVirtualCursor } from '../utils';
-import { NEURO } from '../constants';
+import { createClient, isPathNeuroSafe, setVirtualCursor } from '~/utils';
+import { NEURO } from '~/constants';
 import {
     initializeCommonState,
     setupCommonProviders,
@@ -12,8 +12,8 @@ import {
     obtainExtensionState,
     getDecorationRenderOptions,
     reloadPermissions,
-} from '../shared/extension';
-import { registerDocsLink } from '../shared/docs';
+} from '@shared/extension';
+import { registerDocsLink } from '@shared/docs';
 import { registerUnsupervisedActions, registerUnsupervisedHandlers } from './unsupervised';
 
 export { registerDocsLink };
