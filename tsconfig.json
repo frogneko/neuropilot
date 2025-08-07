@@ -12,5 +12,5 @@
 			"@typing/*": ["./src/types/*"]
 		}
 	},
-	"exclude": ["node_modules", ".vscode-test", "playground", "docs", "assets", "project-files"]
+	"exclude": ["node_modules", ".vscode-test", "playground", "docs", "project-files"]
 }

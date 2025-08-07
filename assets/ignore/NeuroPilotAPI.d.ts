@@ -7,10 +7,10 @@
 // Instances of Position should be imaginatively replaced with an actual object interface to describe the Neuro cursor position.
 import { Event, Position, WorkspaceConfiguration } from 'vscode';
 import { Action, NeuroClient } from 'neuro-game-sdk';
-import { ActionData, ActionValidationResult, RCEAction } from '../../src/neuro_client_helper';
-import { Permission, PermissionLevel } from '../../src/config';
-import { PromptGenerator } from '../../src/rce';
-export type { Permission } from '../../src/config';
+import { ActionData, ActionValidationResult, RCEAction } from '~/neuro_client_helper';
+import { Permission, PermissionLevel } from '~/config';
+import { PromptGenerator } from '~/rce';
+export type { Permission } from '~/config';
 
 // "next" allows people to access API changes early, if any, but can and will change at any time
 export type CurrentAPIVersions = 'next' | 1;
