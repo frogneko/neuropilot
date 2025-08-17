@@ -25,7 +25,9 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
-
+    environment:
+      name: Visual Studio Marketplace
+      url: https://marketplace.visualstudio.com/items?itemName=Pasu4.neuropilot
     steps:
     - uses: actions/checkout@v4
 
