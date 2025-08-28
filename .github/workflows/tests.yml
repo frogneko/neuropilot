@@ -1,4 +1,4 @@
-name: Build extension
+name: Tests
 
 on:
     push:
@@ -18,17 +18,10 @@ on:
             - "playground/"
             - "tony/"
     workflow_dispatch:
-        inputs:
-            prod:
-                type: choice
-                description: Whether to override to build in production mode. Use 0 for dev and 1 for prod.
-                required: false
-                default: "0"
-                options: ["0", "1"]
 
 jobs:
-    build:
-        name: Build extension
+    test:
+        name: Run Tests
         runs-on: ubuntu-latest
         steps:
             - name: Checkout source repository
@@ -65,13 +58,18 @@ jobs:
             - name: Run unit tests
               run: pnpm test:unit
             
-            - name: Package extension
+            - name: Run integration tests
+              run: pnpm test:integration
               env:
-                NODE_ENV: ${{ inputs.prod || '0' }}
-              run: pnpm vsce package --allow-star-activation --no-dependencies
+                # Speed up VS Code test installation
+                VSCODE_TEST_VERSION: 1.103.2
             
-            - name: Upload builds
+            - name: Run test coverage
+              run: pnpm test:coverage
+            
+            - name: Upload coverage reports
               uses: actions/upload-artifact@v4
               with:
-                path: neuropilot-*.vsix
-                name: NeuroPilot (Non-Production) Build ${{ github.sha }}
+                path: coverage/
+                name: coverage-reports-${{ github.sha }}
+                retention-days: 30

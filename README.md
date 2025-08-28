@@ -93,6 +93,65 @@ Copilot mode is developed for making Neuro request to do actions instead of dire
 This was called the **R**equested **C**ommand **E**xecution (or Request for Command Execution) framework when it was first conceived.
 The short answer is no, there isn't an intentional Remote Code Execution vulnerability in this extension, but by enabling Neuro's access to Pseudoterminals, one could say she already has access to a very powerful RCE, so be careful with that one.
 
+## Testing
+
+### Unit Tests
+Unit tests use Mocha and test the core logic of the extension:
+```bash
+pnpm test:unit
+```
+
+### Integration Tests
+Integration tests use the VS Code Extension Test Framework and test the extension in a real VS Code environment:
+```bash
+pnpm test:integration
+```
+
+**Note**: Integration tests require VS Code to be installed. The test runner will try to use your existing VS Code installation first. If it can't find one, it will download a test version (~150MB). 
+
+**To avoid the download**: Make sure VS Code is installed in a standard location:
+- **Windows**: `C:\Users\[username]\AppData\Local\Programs\Microsoft VS Code\Code.exe`
+- **macOS**: `/Applications/Visual Studio Code.app/Contents/MacOS/Electron`
+- **Linux**: `/usr/bin/code` or `/usr/local/bin/code`
+
+**Note**: If VS Code is installed via the Microsoft Store or in a non-standard location, the test runner may not find it and will download a test version. This is a limitation of the VS Code Extension Test Framework.
+
+**Extension Activation**: The tests automatically activate the NeuroPilot extension. If you previously needed to manually reload extensions, this should no longer be necessary.
+
+**CI/CD Compatibility**: Integration tests work perfectly in GitHub Actions and other CI environments. The VS Code Extension Test Framework runs headlessly without requiring a GUI. The CI pipeline includes caching for the VS Code test installation to avoid repeated downloads.
+
+If you've already run the tests and it downloaded VS Code, you can delete the `.vscode-test` folder to force it to look for your system installation on the next run:
+
+```bash
+# Remove downloaded VS Code test installation (Unix/Linux/macOS)
+rm -rf .vscode-test
+
+# Or on Windows PowerShell:
+Remove-Item -Recurse -Force .vscode-test
+```
+
+### Test Coverage
+To run tests with coverage:
+```bash
+pnpm test:coverage
+```
+
+**Note**: Currently, coverage only tracks the unit tests. Integration tests are not included in coverage reports as they run in a separate VS Code environment.
+
+### CI/CD Pipeline
+The project includes GitHub Actions workflows that automatically run:
+- **Linting**: ESLint checks on all source files
+- **Unit Tests**: All unit tests with Mocha
+- **Integration Tests**: VS Code Extension Test Framework tests
+- **Build**: Extension packaging and artifact creation
+
+These run on every pull request and push to ensure code quality.
+
+**Performance Optimizations**:
+- **pnpm caching**: Dependencies are cached between runs
+- **VS Code test caching**: The ~150MB VS Code test installation is cached to avoid repeated downloads
+- **Parallel execution**: Different workflows can run in parallel
+
 ## Debugging
 
 - Clone the repository

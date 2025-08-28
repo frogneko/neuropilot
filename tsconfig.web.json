@@ -14,5 +14,7 @@
   ],
   "exclude": [
     "src/desktop/**/*",
+    "test/**/*",
+    "node_modules/@types/mocha"
   ]
 }

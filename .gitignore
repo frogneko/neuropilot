@@ -27,3 +27,7 @@ pnpm-debug.log*
 
 # macOS-specific files
 .DS_Store
+
+# Test coverage and NYC output
+coverage/
+.nyc_output/

@@ -214,6 +214,25 @@ export const editingActions = {
         validator: [checkCurrentFile],
         promptGenerator: 'save.',
     },
+    rewrite_all: {
+        name: 'rewrite_all',
+        description: 'Rewrite the entire contents of the file.',
+        schema: {
+            type: 'object',
+            properties: {
+                content: { type: 'string' },
+            },
+            required: ['content'],
+            additionalProperties: false,
+        },
+        permissions: [PERMISSIONS.editActiveDocument],
+        handler: handleRewriteAll,
+        validator: [checkCurrentFile],
+        promptGenerator: (actionData: ActionData) => {
+            const lineCount = actionData.params.content.trim().split('\n').length;
+            return `rewrite the entire file with ${lineCount} line${lineCount === 1 ? '' : 's'} of content.`;
+        },
+    },
 } satisfies Record<string, RCEAction>;
 
 export function registerEditingActions() {
@@ -227,6 +246,7 @@ export function registerEditingActions() {
             editingActions.delete_text,
             editingActions.find_text,
             editingActions.undo,
+            editingActions.rewrite_all,
         ]).filter(isActionEnabled));
         if (vscode.workspace.getConfiguration('files').get<string>('autoSave') !== 'afterDelay') {
             NEURO.client?.registerActions(stripToActions([
@@ -559,6 +579,43 @@ export function handleSave(_actionData: ActionData): string | undefined {
             NEURO.saving = false;
         },
     );
+
+    return undefined;
+}
+
+export function handleRewriteAll(actionData: ActionData): string | undefined {
+    const content: string = actionData.params.content;
+
+    const document = vscode.window.activeTextEditor?.document;
+    if (document === undefined)
+        return contextFailure(CONTEXT_NO_ACTIVE_DOCUMENT);
+    if (!isPathNeuroSafe(document.fileName))
+        return contextFailure(CONTEXT_NO_ACCESS);
+
+    const edit = new vscode.WorkspaceEdit();
+    const fullRange = new vscode.Range(
+        document.positionAt(0),
+        document.positionAt(document.getText().length),
+    );
+    edit.replace(document.uri, fullRange, content);
+
+    vscode.workspace.applyEdit(edit).then(success => {
+        if (success) {
+            logOutput('INFO', 'Rewrote entire document content');
+            const document = vscode.window.activeTextEditor!.document;
+            const relativePath = vscode.workspace.asRelativePath(document.uri);
+            const lineCount = content.trim().split('\n').length;
+
+            // Set cursor to beginning of file
+            const startPosition = new vscode.Position(0, 0);
+            setVirtualCursor(startPosition);
+
+            const fence = getFence(content);
+            NEURO.client?.sendContext(`Rewrote entire file ${relativePath} with ${lineCount} line${lineCount === 1 ? '' : 's'} of content\n\nUpdated content:\n\n${fence}\n${content}\n${fence}`);
+        } else {
+            NEURO.client?.sendContext(contextFailure('Failed to rewrite document content'));
+        }
+    });
 
     return undefined;
 }

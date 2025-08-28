@@ -1,5 +1,6 @@
 import { web } from './esbuild-configs/web.esbuild.js';
 import { desktop } from './esbuild-configs/desktop.esbuild.js';
+import { test } from './esbuild-configs/test.esbuild.js';
 import * as fs from 'fs';
 import chalk from 'chalk';
 
@@ -60,6 +61,9 @@ switch (mode.toLowerCase()) {
     case 'desktop':
         outDir = './out/desktop';
         break;
+    case 'test':
+        outDir = './out/test';
+        break;
     default:
         outDir = './out';
 }
@@ -90,6 +94,14 @@ try {
             });
             console.log(chalk.green.bold.underline('🧰  Desktop build completed successfully!'));
             break;
+        case 'test':
+            console.log(chalk.blue(`🧪 ${watch ? 'Watching' : 'Running'} test build...`));
+            await test(production, watch).catch(erm => {
+                console.error(chalk.red.bold(`💥 Test build failed: ${erm}`));
+                process.exit(1);
+            });
+            console.log(chalk.green.bold.underline('🧰  Test build completed successfully!'));
+            break;
         case 'default':
             // Can't use watch while building both.
             if (watch) {
@@ -104,6 +116,11 @@ try {
             console.log(chalk.blue('🌐 Running web build...'));
             await web(production, false).catch(erm => {
                 console.error(chalk.red.bold(`💥  Web build failed: ${erm}`));
+                process.exit(1);
+            });
+            console.log(chalk.blue('🧪 Running test build...'));
+            await test(production, false).catch(erm => {
+                console.error(chalk.red.bold(`💥  Test build failed: ${erm}`));
                 process.exit(1);
             });
             console.log(chalk.green.bold.underline('🎉 Builds completed successfully!'));
